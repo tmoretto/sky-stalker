@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id          String      @id @default(cuid())
+  email       String      @unique
+  name        String?
+  watchLat    Float?
+  watchLon    Float?
+  watchRadius Int         @default(25)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  tokens      FcmToken[]
+  sightings   Sighting[]
+  preferences Preference?
+}
+
+model FcmToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  device    String?
+  createdAt DateTime @default(now())
+}
+
+model Sighting {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hex          String
+  callsign     String?
+  aircraftType String?
+  airline      String?
+  altitude     Int?
+  speed        Float?
+  lat          Float
+  lon          Float
+  heading      Float?
+  distance     Float
+  seenAt       DateTime @default(now())
+
+  @@index([userId, seenAt])
+  @@index([hex])
+}
+
+model Preference {
+  id                String  @id @default(cuid())
+  userId            String  @unique
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notifyMilitary    Boolean @default(true)
+  notifyHelicopters Boolean @default(true)
+  notifyAboveAlt    Int?
+  notifyBelowAlt    Int?
+  quietHoursStart   String?
+  quietHoursEnd     String?
+  unitSystem        String  @default("imperial")
+}
