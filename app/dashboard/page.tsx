@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAircraft } from '@/lib/hooks/useAircraft';
 import { useGeolocation } from '@/lib/hooks/useGeolocation';
 import { useSettings } from '@/lib/store/settings';
@@ -14,12 +14,17 @@ import { isWidebody } from '@/lib/adsb/geo';
 import { usePredictions } from '@/lib/hooks/usePredictions';
 
 export default function DashboardPage() {
+  const [isHydrated, setIsHydrated] = useState(false);
   const { lat, lon, radiusNm, unitSystem, setUnitSystem, ambientMode, setAmbientMode } = useSettings();
   const { permissionState, requestPermission } = useGeolocation();
   const { aircraft: allAircraft, isLoading, fetchedAt } = useAircraft();
   const [selectedHex, setSelectedHex] = useState<string | null>(null);
   const [widebodyOnly, setWidebodyOnly] = useState(false);
   const { predictions } = usePredictions();
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const aircraft = allAircraft.filter((ac) => {
     if (ac.onGround) return false;
@@ -29,8 +34,24 @@ export default function DashboardPage() {
 
   const hasLocation = lat != null && lon != null;
 
+  if (!isHydrated) {
+    return (
+      <div className="flex min-h-full flex-col bg-[var(--fids-bg)] md:h-full">
+        <Header />
+        <div className="px-4 pt-3">
+          <NotificationPermission userId={null} />
+        </div>
+        <div className="flex flex-1 items-center justify-center px-4">
+          <div className="rounded-xl bg-[var(--sign-blue)] px-6 py-4 text-center shadow-[0_4px_30px_rgba(0,61,165,0.4)]">
+            <p className="font-mono text-sm font-bold uppercase tracking-[0.15em] text-white">Loading Dashboard</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex h-full flex-col bg-[var(--fids-bg)]">
+    <div className="flex min-h-full flex-col bg-[var(--fids-bg)] md:h-full">
       <Header />
       <div className="px-4 pt-3">
         <NotificationPermission userId={null} />
@@ -57,9 +78,9 @@ export default function DashboardPage() {
           )}
         </div>
       ) : (
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-col md:flex-1 md:flex-row md:overflow-hidden">
           {/* Map */}
-          <div className="relative flex-1">
+          <div className="relative h-[100svh] md:h-auto md:min-h-0 md:flex-1">
             <AircraftMap
               aircraft={aircraft}
               centerLat={lat}
@@ -107,6 +128,44 @@ export default function DashboardPage() {
                 <><span>●</span> <FlipCounter value={String(aircraft.length)} /> TRACKED · {fetchedAt ? new Date(fetchedAt).toLocaleTimeString() : '—'}</>
               )}
             </div>
+
+            {/* Mobile flight list */}
+            <section className="absolute inset-x-0 bottom-0 z-[1000] border-t-2 border-[var(--fids-border)] bg-[var(--fids-bg)]/97 backdrop-blur-sm md:hidden">
+              <div className="flex items-center justify-between bg-[var(--sign-blue)] px-4 py-3">
+                <span className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-white">
+                  ✈️ OVERHEAD (<FlipCounter value={String(aircraft.length)} />)
+                </span>
+                <button
+                  onClick={() => setWidebodyOnly((v) => !v)}
+                  className={`rounded px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                    widebodyOnly
+                      ? 'bg-[var(--sign-yellow)] text-[var(--sign-black)]'
+                      : 'bg-white/15 text-white/70 hover:bg-white/25 hover:text-white'
+                  }`}
+                >
+                  WIDEBODY
+                </button>
+              </div>
+              <div className="flex items-center border-b border-[var(--fids-border)] bg-[var(--fids-row-alt)] px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-slate-600">
+                <span className="flex-1">Flight</span>
+                <span className="w-14 text-right">Alt</span>
+                <span className="w-14 text-right">Dist</span>
+              </div>
+              <div className="max-h-[58svh] overflow-y-auto">
+                {isLoading && aircraft.length === 0 ? (
+                  <AircraftListSkeleton count={4} />
+                ) : (
+                  <AircraftList
+                    aircraft={aircraft}
+                    centerLat={lat}
+                    centerLon={lon}
+                    selectedHex={selectedHex}
+                    onSelectAircraft={setSelectedHex}
+                    unitSystem={unitSystem}
+                  />
+                )}
+              </div>
+            </section>
           </div>
 
           {/* Sidebar — FIDS board */}
