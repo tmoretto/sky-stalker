@@ -39,7 +39,7 @@ export default async function HistoryPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--fids-border)]">
-                {sightings.map((s, i) => (
+                {sightings.map((s: (typeof sightings)[number], i) => (
                   <tr key={s.id} className={i % 2 === 0 ? 'bg-[var(--fids-row)]' : 'bg-[var(--fids-row-alt)]'}>
                     <td className="px-4 py-2.5 font-bold tracking-wider text-[var(--fids-green)]">
                       <span className="inline-flex items-center gap-1.5">
