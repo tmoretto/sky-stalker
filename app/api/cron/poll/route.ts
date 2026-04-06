@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
         where: { userId: user.id, seenAt: { gte: cutoff } },
         select: { hex: true },
       });
-      const recentHexes = new Set(recentSightings.map((s) => s.hex));
+      const recentHexes = new Set(recentSightings.map((s: { hex: string }) => s.hex));
 
       for (const aircraft of result.aircraft) {
         if (recentHexes.has(aircraft.hex)) continue;
