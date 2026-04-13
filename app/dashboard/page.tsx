@@ -151,7 +151,7 @@ export default function DashboardPage() {
                 <span className="w-14 text-right">Alt</span>
                 <span className="w-14 text-right">Dist</span>
               </div>
-              <div className="max-h-[58svh] overflow-y-auto">
+              <div className="max-h-[360px] overflow-y-auto">
                 {isLoading && aircraft.length === 0 ? (
                   <AircraftListSkeleton count={4} />
                 ) : (
@@ -192,7 +192,7 @@ export default function DashboardPage() {
               <span className="w-14 text-right">Alt</span>
               <span className="w-14 text-right">Dist</span>
             </div>
-            <div className="flex-1 overflow-y-auto">
+            <div className="max-h-[360px] overflow-y-auto">
               {isLoading && aircraft.length === 0 ? (
                 <AircraftListSkeleton count={6} />
               ) : (

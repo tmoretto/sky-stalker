@@ -47,15 +47,18 @@ export function useGeolocation(): GeolocationState {
     });
   }, [handlePosition, handleError]);
 
-  // Auto-request on mount if we have stored coords already (just refresh)
+  // Auto-request on mount: refresh if we already have coords, otherwise prompt immediately
   useEffect(() => {
     const stored = useSettings.getState();
     if (stored.lat !== null && stored.lon !== null) {
       setPermissionState('granted');
+    } else {
+      requestPermission();
     }
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { permissionState, error, requestPermission };

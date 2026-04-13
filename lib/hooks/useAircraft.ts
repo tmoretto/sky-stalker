@@ -21,7 +21,7 @@ export function useAircraft() {
       : null;
 
   const { data, error, isLoading, mutate } = useSWR<NearbyAircraftResponse>(key, fetcher, {
-    refreshInterval: 15000,
+    refreshInterval: 10000,
     revalidateOnFocus: false,
   });
 
