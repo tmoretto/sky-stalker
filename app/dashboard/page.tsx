@@ -121,7 +121,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Status bar */}
-            <div className="absolute bottom-3 left-3 z-[1000] flex items-center gap-2 rounded-lg bg-[var(--sign-black)] px-3 py-2 font-mono text-xs tabular-nums text-[var(--fids-green)] shadow-lg">
+            <div className="absolute top-3 left-12 z-[1000] flex items-center gap-2 rounded-lg bg-[var(--sign-black)] px-3 py-2 font-mono text-xs tabular-nums text-[var(--fids-green)] shadow-lg">
               {isLoading ? (
                 <><span className="animate-pulse">●</span> UPDATING…</>
               ) : (
